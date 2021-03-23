@@ -1,0 +1,1 @@
+This folder contains example scripts using NSB for different investigations.
