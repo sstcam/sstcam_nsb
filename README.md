@@ -1,2 +1,2 @@
 # sstcam_nsb
-Issue tracking and script storage for SSTCAM investigations of night sky background
+This repository is to track issues relating to investigations of SSTCAM night sky background using the NSB package used and created by H.E.S.S. https://pypi.org/project/nsb/ and get results into an output compatible with sstcam-simulation https://github.com/sstcam/sstcam-simulation.
