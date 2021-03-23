@@ -1,0 +1,5 @@
+# Name; Ra; Dec; comment
+Crab Pulsar;05 34 31.9;+22 00 52.2;PSR
+Vela Pulsar;08 35 20.7;-45 10 35.2;PSR
+# Moon obviously has no Ra/Dec - this is just a dummy
+Moon;00 00 0;00 00 0;none

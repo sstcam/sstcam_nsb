@@ -7,3 +7,7 @@ conda activate nsbenv
 conda install pip
 conda install -c cta-observatory ctapipe
 pip install nsb
+
+Configuration information:
+
+nsb needs a mypycat.txt saved in the ~/.nsb folder to operate with the mypycat() function, use the version in this git folder. 
