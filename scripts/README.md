@@ -1,12 +1,15 @@
 This folder contains example scripts using NSB for different investigations.
 
-Installation instructions for joint ctapipe/nsb environment:
+Very hacky installation instructions for joint ctapipe/nsb/photutils environment:
 
 conda create -n nsbenv python=3.8  
 conda activate nsbenv  
 conda install pip  
 conda install -c cta-observatory ctapipe  
-pip install nsb  
+pip install nsb
+conda install photutils
+pip uninstall numpy
+pip install numpy  
 
 Configuration information:
 
