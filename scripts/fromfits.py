@@ -28,28 +28,41 @@ hdu1=fits.open(filename)
 #print(hdu1)
 #print(hdu1.info())
 #print(dir(hdu1))
-#print(hdu1[0].header)
+
 print(hdu1.info())
 fov=hdu1[0].data
+print(hdu1[0].header)
 fov=np.nan_to_num(fov)
+wcs_fits=WCS(hdu1[0].header)
+print('WCS from fits file:',wcs_fits)
 
-wcs_input_dict=wcs_input_dict = {'CTYPE1': 'RA','CUNIT1': 'deg','CDELT1': -0.0005,'CRPIX1': 5000,'CRVAL1':128.83606354,'NAXIS1': 10000,'CTYPE2': 'DEC','CUNIT2': 'deg','CDELT2': 0.0005,'CRPIX2': 5000,'CRVAL2':-45.17643181,'NAXIS2': 10000}
+wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.001,'CRPIX1': 5000,'CRVAL1':128.83606354,'NAXIS1': 10000,'CTYPE2': 'DEC--HPX','CUNIT2': 'deg','CDELT2': 0.001,'CRPIX2': 5000,'CRVAL2':-45.17643181,'NAXIS2': 10000,'CROTA1':0,'CROTA2':0}
 
-wcs=WCS(wcs_input_dict)
+wcs_dict=WCS(wcs_input_dict)
+print('wcs_dict',wcs_dict)
+print(dir(wcs_dict))
 funit=u.dimensionless_unscaled
 print('funit',funit)
 hdu1.close()
 
 fig=plt.figure()
 print(fov.shape)
-plt.subplot(projection=wcs)
+ax=plt.subplot(projection=wcs_dict,label='overlays')
 vmin, vmax = np.nanmin(fov), np.minimum(4 * np.nanmedian(fov), np.nanmax(fov))
-plt.imshow(fov, cmap=cm.viridis, vmin=vmin, vmax=vmax,origin='lower')
+f1=ax.imshow(fov, cmap=cm.viridis, vmin=vmin, vmax=vmax,origin='lower')
 
-plt.grid(color='white', ls='solid')
-plt.xlabel('Galactic Longitude')
-plt.ylabel('Galactic Latitude')
-plt.colorbar(label='Brightness (nLb)')
+
+ax.coords.grid(True, color='white', ls='solid')
+ax.coords[0].set_axislabel('Right Ascension')
+ax.coords[1].set_axislabel('Declination')
+ax.coords[0].set_format_unit('deg')
+
+overlay = ax.get_coords_overlay('galactic')
+overlay.grid(color='white', ls='dotted')
+overlay[0].set_axislabel('Galactic Longitude')
+overlay[1].set_axislabel('Galactic Latitude')
+
+fig.colorbar(f1,ax=ax,label='Brightness (nLb)',pad=0.2)
 plt.savefig('fovd.png',dpi=300)
 
 data=u.Quantity(fov,unit=funit)
@@ -70,6 +83,9 @@ pix_x = cam.pix_x
 pix_y = cam.pix_y
 
 optics = OpticsDescription.from_name('SST-ASTRI') #As is this
+print(optics)
+print(dir(optics))
+
 focal_length = optics.equivalent_focal_length
 
 camera_frame = CameraFrame(focal_length=focal_length,rotation=0*u.deg,telescope_pointing=pointing)
@@ -82,24 +98,27 @@ telescope_frame = TelescopeFrame(
     location=pointing.location,
 )
 telescope_coords = cam_coords.transform_to(telescope_frame)
+print(dir(telescope_coords))
+print(telescope_coords.fk5)
 sky_coords=telescope_coords.transform_to(ICRS())
 print(sky_coords)
 #print('Telescope coordinates:',telescope_coords,dir(telescope_coords))
-print(wcs)
+print('WCS used:',wcs_dict)
+
 aper=SkyRectangularAperture(sky_coords,w=0.19*u.deg,h=0.19*u.deg) #ASTRI Values for 7mm silicon
 #aper=SkyCircularAperture(sky_coords,0.1*u.arcsec)
 print(aper,dir(aper))
 print(data,np.shape(data))
-phot_table=aperture_photometry(data,aper,wcs=wcs)
+phot_table=aperture_photometry(data,aper,wcs=wcs_dict)
 
 print(phot_table)
-phot_table.write('fluxes.csv')
+phot_table.write('fluxes.csv',overwrite=True)
 fig=plt.figure()
-np.set_printoptions(sys.maxsize)
 
 sums=phot_table['aperture_sum']
+sums=np.nan_to_num(sums)
 print(sums)
-plt.hist(sums)
+plt.hist(sums.value)
 plt.xlabel('Pixel')
 plt.ylabel('Integrated Sky Brightness (nLb)')
 plt.savefig('hist.png')
