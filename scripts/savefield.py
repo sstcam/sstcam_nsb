@@ -41,7 +41,7 @@ time_and_date = ephem.Date("2022/04/02 00:30:00")
 mpc = mypycat()
 source = mpc.get("Vela Pulsar")
 
-gaiamap = Gaia(level=10, verbose=True)
+gaiamap = Gaia(level=11, verbose=True)
 model = nsbModel(con, gaiamap, time_and_date, version="hess_basic", verbose=True)
 
 # draw what you want

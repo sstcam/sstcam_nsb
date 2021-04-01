@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from astropy import units as u
 from astropy.time import Time
@@ -40,7 +41,6 @@ wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.001,'CRPIX1': 
 
 wcs_dict=WCS(wcs_input_dict)
 print('wcs_dict',wcs_dict)
-print(dir(wcs_dict))
 funit=u.dimensionless_unscaled
 print('funit',funit)
 hdu1.close()
@@ -84,7 +84,6 @@ pix_y = cam.pix_y
 
 optics = OpticsDescription.from_name('SST-ASTRI') #As is this
 print(optics)
-print(dir(optics))
 
 focal_length = optics.equivalent_focal_length
 
@@ -98,7 +97,6 @@ telescope_frame = TelescopeFrame(
     location=pointing.location,
 )
 telescope_coords = cam_coords.transform_to(telescope_frame)
-print(dir(telescope_coords))
 print(telescope_coords.fk5)
 sky_coords=telescope_coords.transform_to(ICRS())
 print(sky_coords)
@@ -107,7 +105,6 @@ print('WCS used:',wcs_dict)
 
 aper=SkyRectangularAperture(sky_coords,w=0.19*u.deg,h=0.19*u.deg) #ASTRI Values for 7mm silicon
 #aper=SkyCircularAperture(sky_coords,0.1*u.arcsec)
-print(aper,dir(aper))
 print(data,np.shape(data))
 phot_table=aperture_photometry(data,aper,wcs=wcs_dict)
 
@@ -119,6 +116,23 @@ sums=phot_table['aperture_sum']
 sums=np.nan_to_num(sums)
 print(sums)
 plt.hist(sums.value)
+plt.semilogy()
 plt.xlabel('Pixel')
-plt.ylabel('Integrated Sky Brightness (nLb)')
+plt.ylabel('Integrated Sky Brightness (nLb / pixel)')
 plt.savefig('hist.png')
+
+fig=plt.figure()
+
+plt.axis('equal')
+plt.scatter(
+    telescope_coords.fov_lon.deg,
+    telescope_coords.fov_lat.deg,
+    c=sums.value,
+    norm=mpl.colors.LogNorm(),
+    cmap=cm.viridis
+)
+
+plt.colorbar(label='Integrated brightness (nLb/pixel)')
+plt.xlabel('fov_lon / {}'.format(telescope_coords.altaz.az.unit))
+plt.ylabel('fov_lat / {}'.format(telescope_coords.altaz.alt.unit))
+plt.savefig('integrated.png',dpi=300)
