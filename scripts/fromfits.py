@@ -23,7 +23,7 @@ np.set_printoptions(threshold=2000)
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
 
-filename='/store/spencers/NSBmaps/NSB_of_20220402003000_.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20220322013000_.fits'
 
 hdu1=fits.open(filename)
 #print(hdu1)
@@ -36,8 +36,7 @@ print(hdu1[0].header)
 fov=np.nan_to_num(fov)
 wcs_fits=WCS(hdu1[0].header)
 print('WCS from fits file:',wcs_fits)
-
-wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.001,'CRPIX1': 5000,'CRVAL1':128.83606354,'NAXIS1': 10000,'CTYPE2': 'DEC--HPX','CUNIT2': 'deg','CDELT2': 0.001,'CRPIX2': 5000,'CRVAL2':-45.17643181,'NAXIS2': 10000,'CROTA1':0,'CROTA2':0}
+wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.001,'CRPIX1': 5000,'CRVAL1':161.26477294,'NAXIS1': 10000,'CTYPE2': 'DEC--HPX','CUNIT2': 'deg','CDELT2': 0.001,'CRPIX2': 5000,'CRVAL2':-59.68443085,'NAXIS2': 10000,'CROTA1':0,'CROTA2':0}
 
 wcs_dict=WCS(wcs_input_dict)
 print('wcs_dict',wcs_dict)
@@ -70,9 +69,9 @@ print(data,np.shape(data))
 #data=w.pixel_to_world(data)
 
 location = EarthLocation.from_geodetic(-70.317876,-24.681546)
-obstime = Time('2022-04-02T00:30')
+obstime = Time('2022-03-22T01:30')
 
-vela = SkyCoord.from_name("vela pulsar")
+vela = SkyCoord.from_name("Eta Carinae")
 print(vela)
 altaz = AltAz(location=location, obstime=obstime)
 
