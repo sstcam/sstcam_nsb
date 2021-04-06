@@ -25,21 +25,22 @@ from matplotlib import cm
 import sys
 
 #np.set_printoptions(threshold=sys.maxsize)
-# Make plots and fonts larger                                                                                                                                                                               
+# Make plots and fonts larger                                                                                                                                                                              
+runname=sys.argv[1]
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
 
-fovval=10.0
+fovval=12.0
 
 print('Begin analysis')
 con = config.TheConfiguration()
 #con.readStandardConfig()
 con.readConfig("/home/spencers/my_config.cfg")
 
-time_and_date = ephem.Date("2022/04/02 00:30:00")
+time_and_date = ephem.Date("2022/03/22 01:30:00")
 
 mpc = mypycat()
-source = mpc.get("Vela Pulsar")
+source = mpc.get("Eta Carinae")
 
 gaiamap = Gaia(level=11, verbose=True)
 model = nsbModel(con, gaiamap, time_and_date, version="hess_basic", verbose=True)
@@ -49,7 +50,7 @@ model = nsbModel(con, gaiamap, time_and_date, version="hess_basic", verbose=True
 model.drawAllSky(size=800)
 # show the results on screen
 plotMaps(model.skymap.data, 'Allskymaps for %s' % (model.observer_source.date))
-plt.savefig('/home/spencers/allskydeep.png')
+plt.savefig('/home/spencers/allsky'+runname+'.png')
 
 # draw something else:
 fig=plt.figure()
@@ -62,6 +63,6 @@ print(model.skymap.data)
 # save fits files
 
 hdul = pyfits.HDUList([model.skymap])
-hdul.writeto("NSB_of_"+ makeDateString(time_and_date) + "_.fits",'exception',True)
+hdul.writeto("NSB_of_"+ makeDateString(time_and_date) + "_"+runname+".fits",'exception',True)
 
-plt.savefig('/home/spencers/fovdeep.png',dpi=300)
+plt.savefig('/home/spencers/fov_'+runname+'.png',dpi=300)
