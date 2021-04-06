@@ -23,7 +23,7 @@ np.set_printoptions(threshold=2000)
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
 
-filename='/store/spencers/NSBmaps/NSB_of_20220322013000_.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20220322013000_biggerfov.fits'
 
 hdu1=fits.open(filename)
 #print(hdu1)
@@ -36,7 +36,9 @@ print(hdu1[0].header)
 fov=np.nan_to_num(fov)
 wcs_fits=WCS(hdu1[0].header)
 print('WCS from fits file:',wcs_fits)
-wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.001,'CRPIX1': 5000,'CRVAL1':161.26477294,'NAXIS1': 10000,'CTYPE2': 'DEC--HPX','CUNIT2': 'deg','CDELT2': 0.001,'CRPIX2': 5000,'CRVAL2':-59.68443085,'NAXIS2': 10000,'CROTA1':0,'CROTA2':0}
+#CDELT1 and CDELT2 for 10 degree fov: -0.001,0.001
+
+wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.0012,'CRPIX1': 5000,'CRVAL1':161.26477294,'NAXIS1': 10000,'CTYPE2': 'DEC--HPX','CUNIT2': 'deg','CDELT2': 0.0012,'CRPIX2': 5000,'CRVAL2':-59.68443085,'NAXIS2': 10000,'CROTA1':0,'CROTA2':0}
 
 wcs_dict=WCS(wcs_input_dict)
 print('wcs_dict',wcs_dict)
