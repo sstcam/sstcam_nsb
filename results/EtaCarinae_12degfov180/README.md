@@ -1,4 +1,4 @@
-Eta Carinae, Now with 12 degree FOV in nsb not 10. Now with 180 degree field rotation
+Eta Carinae, Now with 12 degree FOV in nsb not 10. Latest version with engineeringcameraframe images added
 Min gaia mag: 15
 Healpix level: 11
 Obs time for Eta Carinae time_and_date = ephem.Date("2022/03/22 01:30:00")

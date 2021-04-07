@@ -14,7 +14,7 @@ from photutils.aperture import RectangularAperture, aperture_photometry, SkyCirc
 from ctapipe.io import EventSource
 from ctapipe.calib import CameraCalibrator
 from ctapipe.utils import get_dataset_path
-from ctapipe.visualization import ArrayDisplay
+from ctapipe.visualization import ArrayDisplay, CameraDisplay
 from ctapipe.instrument import CameraGeometry
 from ctapipe.instrument.optics import OpticsDescription
 from ctapipe.coordinates import (GroundFrame,TiltedGroundFrame,NominalFrame,TelescopeFrame,CameraFrame,EngineeringCameraFrame)
@@ -88,7 +88,7 @@ print(optics)
 
 focal_length = optics.equivalent_focal_length
 
-camera_frame = CameraFrame(focal_length=focal_length,rotation=0*u.deg,telescope_pointing=pointing)
+camera_frame = CameraFrame(focal_length=focal_length,rotation=0*u.deg,telescope_pointing=pointing) #Hacky solution to camera rotation problem
 
 cam_coords = SkyCoord(pix_x,pix_y,frame=camera_frame)
 
@@ -97,7 +97,8 @@ telescope_frame = TelescopeFrame(
     obstime=pointing.obstime,
     location=pointing.location,
 )
-telescope_coords = cam_coords.transform_to(telescope_frame)
+engineering_frame=EngineeringCameraFrame(n_mirrors=2,location=pointing.location,obstime=pointing.obstime,focal_length=focal_length,telescope_pointing=pointing)
+telescope_coords = cam_coords.transform_to(engineering_frame)
 print(telescope_coords.fk5)
 sky_coords=telescope_coords.transform_to(ICRS())
 print(sky_coords)
@@ -116,24 +117,53 @@ fig=plt.figure()
 sums=phot_table['aperture_sum']
 sums=np.nan_to_num(sums)
 print(sums)
+print(dir(telescope_coords),dir(sky_coords),dir(sky_coords.engineeringcameraframe))
 plt.hist(sums.value)
 plt.semilogy()
 plt.xlabel('Pixel')
 plt.ylabel('Integrated Sky Brightness (nLb / pixel)')
 plt.savefig('hist.png')
 
-fig=plt.figure()
+'''fig=plt.figure()
 
 plt.axis('equal')
 plt.scatter(
-    telescope_coords.fov_lon.deg,
-    telescope_coords.fov_lat.deg,
+    sky_coords.fov_lon.deg,
+    sky_coords.fov_lat.deg,
     c=sums.value,
     norm=mpl.colors.LogNorm(),
     cmap=cm.viridis
 )
 
 plt.colorbar(label='Integrated brightness (nLb/pixel)')
-plt.xlabel('fov_lon / {}'.format(telescope_coords.altaz.az.unit))
-plt.ylabel('fov_lat / {}'.format(telescope_coords.altaz.alt.unit))
+plt.xlabel('fov_lon / {}'.format(sky_coords.altaz.az.unit))
+plt.ylabel('fov_lat / {}'.format(sky_coords.altaz.alt.unit))
+plt.savefig('integrated.png',dpi=300)
+'''
+engineering_cam=cam.transform_to(engineering_frame)
+
+fig, axs = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 6))
+display_camera = CameraDisplay(
+    engineering_cam, 
+    ax=axs[0], 
+    image=sums.value,
+    title="EngineeringCameraFrame",                                                                                                                                                                        
+    norm=mpl.colors.LogNorm(),
+    cmap='viridis'
+)
+
+#display_camera.set_limits_minmax(vmin,vmax)
+display_camera.add_colorbar(label='Brightness (nLb/pixel)')
+
+display_engineering = CameraDisplay(
+    engineering_cam.transform_to(camera_frame),
+    ax=axs[1],
+    image=sums.value,
+    title="CameraFrame",                                                                                                                                                                                   
+    norm=mpl.colors.LogNorm(),
+    cmap='viridis'
+)
+#display_engineering.set_limits_minmax(vmin,vmax)
+display_engineering.add_colorbar(label='Brightness (nLb/pixel)')
+
 plt.savefig('integrated.png',dpi=300)

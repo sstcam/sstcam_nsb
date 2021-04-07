@@ -1,4 +1,4 @@
-Eta Carinae with same parameters as earlier 12 degree fov run, but now twenty minutes later observation to observe changes. Moon 5 degrees higher in field.  Now with additional 180 degree field rotation. 
+Eta Carinae with same parameters as earlier 12 degree fov run, but now twenty minutes later observation to observe changes. Moon 5 degrees higher in field.  This is latest version with larger field of view and new cameradisplay based images. 
 Min gaia mag: 15  
 Healpix level: 11  
 Obs time for Eta Carinae time_and_date = ephem.Date("2022/03/22 01:50:00")  
