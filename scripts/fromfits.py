@@ -23,7 +23,7 @@ np.set_printoptions(threshold=2000)
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
 
-filename='/store/spencers/NSBmaps/NSB_of_20220322013000_biggerfov.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20220322015000_delta20mins.fits'
 
 hdu1=fits.open(filename)
 #print(hdu1)
@@ -71,7 +71,7 @@ print(data,np.shape(data))
 #data=w.pixel_to_world(data)
 
 location = EarthLocation.from_geodetic(-70.317876,-24.681546)
-obstime = Time('2022-03-22T01:30')
+obstime = Time('2022-03-22T01:50')
 
 vela = SkyCoord.from_name("Eta Carinae")
 print(vela)
@@ -99,8 +99,12 @@ telescope_frame = TelescopeFrame(
 )
 engineering_frame=EngineeringCameraFrame(n_mirrors=2,location=pointing.location,obstime=pointing.obstime,focal_length=focal_length,telescope_pointing=pointing)
 telescope_coords = cam_coords.transform_to(engineering_frame)
+tc2=cam_coords.transform_to(telescope_frame)
+
 print(telescope_coords.fk5)
 sky_coords=telescope_coords.transform_to(ICRS())
+sc2=tc2.transform_to(ICRS())
+
 print(sky_coords)
 #print('Telescope coordinates:',telescope_coords,dir(telescope_coords))
 print('WCS used:',wcs_dict)
@@ -117,29 +121,14 @@ fig=plt.figure()
 sums=phot_table['aperture_sum']
 sums=np.nan_to_num(sums)
 print(sums)
-print(dir(telescope_coords),dir(sky_coords),dir(sky_coords.engineeringcameraframe))
+
 plt.hist(sums.value)
 plt.semilogy()
 plt.xlabel('Pixel')
 plt.ylabel('Integrated Sky Brightness (nLb / pixel)')
 plt.savefig('hist.png')
 
-'''fig=plt.figure()
 
-plt.axis('equal')
-plt.scatter(
-    sky_coords.fov_lon.deg,
-    sky_coords.fov_lat.deg,
-    c=sums.value,
-    norm=mpl.colors.LogNorm(),
-    cmap=cm.viridis
-)
-
-plt.colorbar(label='Integrated brightness (nLb/pixel)')
-plt.xlabel('fov_lon / {}'.format(sky_coords.altaz.az.unit))
-plt.ylabel('fov_lat / {}'.format(sky_coords.altaz.alt.unit))
-plt.savefig('integrated.png',dpi=300)
-'''
 engineering_cam=cam.transform_to(engineering_frame)
 
 fig, axs = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 6))
@@ -167,3 +156,20 @@ display_engineering = CameraDisplay(
 display_engineering.add_colorbar(label='Brightness (nLb/pixel)')
 
 plt.savefig('integrated.png',dpi=300)
+
+
+fig=plt.figure()
+plt.axis('equal')
+
+angle=-90.0
+theta=np.pi*angle/180
+rotation=np.array([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]])
+pos=np.array([tc2.fov_lat.deg,tc2.fov_lon.deg])
+pos=np.dot(rotation,pos)
+
+plt.scatter(pos[0],pos[1],c=sums.value,norm=mpl.colors.LogNorm(),cmap=cm.viridis,marker='s') #Hacky solution to rotate sky field to be the same rotation as the engineering camera frame
+plt.colorbar(label='Integrated brightness (nLb/pixel)')                                                                                                                                                    
+plt.xlabel('fov_lon / {}'.format(tc2.altaz.az.unit))
+plt.ylabel('fov_lat / {}'.format(tc2.altaz.alt.unit))                                                                                                                                               
+plt.savefig('skyframe.png',dpi=300)
+
