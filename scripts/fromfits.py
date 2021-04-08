@@ -35,14 +35,23 @@ fov=hdu1[0].data
 print(hdu1[0].header)
 fov=np.nan_to_num(fov)
 wcs_fits=WCS(hdu1[0].header)
+
+funit=1e-5*u.cd*np.pi**(-1)*u.m**(-2) # Photutils doesn't support nanolamberts as a unit natively, so convert to candela/m^2, which it does support.
+
 print('WCS from fits file:',wcs_fits)
-#CDELT1 and CDELT2 for 10 degree fov: -0.001,0.001
+'''                                                                                                                                                                                                         
+Nsb doesn't write fits headers correctly, so you have to define a wcs input dictionary yourself here that depends on the fov size used, the number of pixels, and the RA/DEC of your source. Essentially C
+RVAL1 and 2 are RA/DEC in degrees, CRPIX1 defines the centre of the field as the 5000th pixel (assuming you're using 10000x10000 pixels), CRDELT defines the number of degrees per fov map pixel. CTYPE def
+ines the co-ordinate system used, there are variations that could be valid but using the healpix (HPX) versions seems to work well (variations in this are likely to be too small to matter for our purpose
+s anyway).                                                                                                                                                                                                  
+CDELT1 and CDELT2 for 10 degree fov: -0.001, 0.001                                                                                                                                                          
+CDELT1 and CDELT2 for 12 degree fov: -0.0012, 0.0012                                                                                                                                                        
+'''
 
 wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.0012,'CRPIX1': 5000,'CRVAL1':161.26477294,'NAXIS1': 10000,'CTYPE2': 'DEC--HPX','CUNIT2': 'deg','CDELT2': 0.0012,'CRPIX2': 5000,'CRVAL2':-59.68443085,'NAXIS2': 10000,'CROTA1':0,'CROTA2':0}
 
 wcs_dict=WCS(wcs_input_dict)
 print('wcs_dict',wcs_dict)
-funit=u.dimensionless_unscaled
 print('funit',funit)
 hdu1.close()
 
