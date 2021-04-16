@@ -35,12 +35,12 @@ fovval=12.0
 print('Begin analysis')
 con = config.TheConfiguration()
 #con.readStandardConfig()
-con.readConfig("/home/spencers/my_config.cfg")
+con.readConfig("/home/spencers/astri_config.cfg")
 
-time_and_date = ephem.Date("2022/03/22 01:30:00")
+time_and_date = ephem.Date("2019/05/09 01:37:54.728026")
 
 mpc = mypycat()
-source = mpc.get("Eta Carinae")
+source = mpc.get("ASTRI DRACO")
 
 gaiamap = Gaia(level=11, verbose=True)
 model = nsbModel(con, gaiamap, time_and_date, version="hess_basic", verbose=True)
