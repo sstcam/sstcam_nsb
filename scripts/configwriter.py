@@ -13,12 +13,18 @@ def writeconfig(filename,configuration):
     #Actually writes all the elements of a configuration dictionary to a give filename 
     return 0
 
-paranal=EarthLocation(lat='-24.681546',lon='-24.681546',height=2161.25*u.m)
-obsalt=0*u.degree
-obsaz=90*u.degree
+#paranal=EarthLocation(lat='-24.681546',lon='-24.681546',height=2161.25*u.m)
+paranal=EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates
+
+obsalt=73.21*u.degree
+obsaz=0.5*u.degree
 print(paranal)
 
-starttime=Time('2022-04-17T00:20')
+starttime=Time('2019-05-09T01:37:54.72806')
+aa=AltAz(alt=obsalt,az=obsaz,location=paranal,obstime=starttime)
+coords=aa.transform_to(ICRS())
+print(coords.ra.hms,coords.dec.hms)
+raise KeyboardInterrupt
 dt=TimeDelta(20*60.0*u.s)*np.linspace(0,100)
 
 observing_times=starttime+dt
