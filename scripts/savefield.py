@@ -37,7 +37,7 @@ con = config.TheConfiguration()
 #con.readStandardConfig()
 con.readConfig("/home/spencers/astri_config.cfg")
 
-time_and_date = ephem.Date("2019/05/09 01:37:54.728026")
+time_and_date = ephem.Date("2019/05/09 00:37:54.728026")
 
 mpc = mypycat()
 source = mpc.get("ASTRI DRACO")
