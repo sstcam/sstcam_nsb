@@ -27,11 +27,11 @@ plt.rcParams['font.size'] = 16
 
 # Set run options here
 
-filename='/store/spencers/NSBmaps/NSB_of_20190509013754_dracosky.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20190509023754_astri02mk2.fits'
 
 #location = EarthLocation.from_geodetic(-70.317876,-24.681546,height=2161.25) #Paranal SST-1
 location = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267,height=1750*u.m) #ASTRI
-obstime = Time('2019-05-09T00:37:54.728')
+obstime = Time('2019-05-09T02:37:54.728')
 #raval = 266.1836287564894*u.deg # Source right ascension
 #decval = 54.49192701147445*u.deg # Source declination
 raval=266.1836287564894*u.deg
