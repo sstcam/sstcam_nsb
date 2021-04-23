@@ -3,7 +3,7 @@ from astropy.time import Time, TimeDelta
 import astropy.units as u
 import numpy as np
 
-def generateconfig(observing_time,observing_location,altaz,version='hess_basic',image_size=200,healpix_level=11,gauss=0.0,moon_above_horizon=0.0,sun_below_horizon=-18.0):
+def generateconfig(observing_time,observing_location,altaz,version='hess_basic',image_size=200,healpix_level=11,gauss=0.0,moon_above_horizon=0.0,sun_below_horizon=-18.0,source_above_horizon=10.0):
     # Generates a dictionary for an astropy observing time and Earth location, alt and az (in astropy altaz form), with other parameters defined.
     obstime=observing_time.strftime('%Y/%m/%d %H:%M:%S')
     Lon=observing_location.lon.deg
@@ -22,7 +22,8 @@ def generateconfig(observing_time,observing_location,altaz,version='hess_basic',
                    'healpix_level':healpix_level,
                    'gauss':gauss,
                    'moon_above_horizon':moon_above_horizon,
-                   'sun_below_horizon':sun_below_horizon}
+                   'sun_below_horizon':sun_below_horizon,
+                   'source_above_horizon':source_above_horizon}
     return configuration
 
 def writeconfig(filename,configuration):
