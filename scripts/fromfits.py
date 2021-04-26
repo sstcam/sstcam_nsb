@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from astropy import units as u
-from astropy.time import Time
+from astropy.time import Time, TimeDelta
 import copy
 from astropy.coordinates import SkyCoord,EarthLocation,AltAz,ICRS,Galactic
 from photutils.aperture import SkyRectangularAperture
@@ -27,11 +27,11 @@ plt.rcParams['font.size'] = 16
 
 # Set run options here
 
-filename='/store/spencers/NSBmaps/NSB_of_20190509023754_astri02mk2.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20190508233753_draco23.fits'
 
 #location = EarthLocation.from_geodetic(-70.317876,-24.681546,height=2161.25) #Paranal SST-1
 location = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267,height=1750*u.m) #ASTRI
-obstime = Time('2019-05-09T02:37:54.728')
+obstime = Time('2019-05-09T01:37:54.728')
 #raval = 266.1836287564894*u.deg # Source right ascension
 #decval = 54.49192701147445*u.deg # Source declination
 raval=266.1836287564894*u.deg
@@ -43,6 +43,8 @@ pixelh=0.19*u.deg
 plotstars=True # Whether or not to plot star position overlays
 nstars=5 # Number of stars to plot if selected
 searchradius=5*u.deg # Radius to search for stars in
+UTCtimecorrection=2
+dt=TimeDelta(3600*UTCtimecorrection,format='sec') #Convert to hours
 
 #mainsource = SkyCoord.from_name("ASTRI DRACO")
 mainsource = SkyCoord(ICRS(ra=raval,dec=decval)) #ASTRO DRACO field position
@@ -105,7 +107,11 @@ overlay.grid(color='white', ls='dotted')
 overlay[0].set_axislabel('Galactic Longitude')
 overlay[1].set_axislabel('Galactic Latitude')
 
-fig.colorbar(f1,ax=ax,label='Brightness (nLb)',pad=0.2)
+try:
+    fig.colorbar(f1,ax=ax,label='Brightness (nLb)',pad=0.2)
+except Exception:
+    print('Colorbar exception')
+
 plt.savefig('fovd.png',dpi=300)
 
 data=u.Quantity(fov,unit=funit)
@@ -114,8 +120,12 @@ print(data,np.shape(data))
 
 print(mainsource)
 altaz = AltAz(location=location, obstime=obstime)
-
+o2=obstime+dt
+print(o2)
+a2=AltAz(location=location,obstime=o2)
 pointing=mainsource.transform_to(altaz)
+p2=mainsource.transform_to(a2)
+
 
 pix_x = cam.pix_x
 pix_y = cam.pix_y
@@ -123,7 +133,8 @@ pix_y = cam.pix_y
 
 print(optics)
 
-focal_length = optics.equivalent_focal_length
+#focal_length = optics.equivalent_focal_length
+focal_length = 2.15191*u.m #ASTRI value from sstcam-sandbox
 
 camera_frame = CameraFrame(focal_length=focal_length,telescope_pointing=pointing)
 
@@ -131,7 +142,7 @@ cam_coords = SkyCoord(pix_x,pix_y,frame=camera_frame)
 
 telescope_frame = TelescopeFrame(
     telescope_pointing=pointing,
-    obstime=pointing.obstime,
+    obstime=obstime,
     location=pointing.location,
 )
 engineering_frame=EngineeringCameraFrame(n_mirrors=2,location=pointing.location,obstime=pointing.obstime,focal_length=focal_length,telescope_pointing=pointing)
@@ -192,7 +203,11 @@ display_camera = CameraDisplay(
 #norm=mpl.colors.LogNorm(),
 
 #display_camera.set_limits_minmax(vmin,vmax)
-display_camera.add_colorbar(label='Brightness (nLb/pixel)')
+
+try:
+    display_camera.add_colorbar(label='Brightness (nLb/pixel)')
+except Exception:
+    print('Colorbar exception')
 
 display_engineering = CameraDisplay(
     engineering_cam.transform_to(camera_frame),
@@ -229,7 +244,11 @@ if plotstars==True:
 plt.scatter(pos[0],pos[1],c=sums.value,cmap=cm.viridis,norm=mpl.colors.LogNorm(),marker='s')
 #norm=mpl.colors.LogNorm(),
 
-plt.colorbar(label='Integrated brightness (nLb/pixel)')                                                                                                                                                    
+try:
+    plt.colorbar(label='Integrated brightness (nLb/pixel)')                                                                                                                                                
+except Exception:
+    print('Colorbar exception')
+
 plt.xlabel('fov_lon / {}'.format(tc2.altaz.az.unit))
 plt.ylabel('fov_lat / {}'.format(tc2.altaz.alt.unit))                                                                                                                                               
 plt.savefig(str(skyframename),dpi=300)

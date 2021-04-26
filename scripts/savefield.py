@@ -40,7 +40,7 @@ mversion = 'hess_basic'
 print('Begin analysis')
 con = config.TheConfiguration()
 
-starttime = Time('2019-05-09T02:37:54.72806')
+starttime = Time('2019-05-08T23:37:54.72806')
 loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates 
 obsalt = 73.21*u.degree
 obsaz = 0.5*u.degree
