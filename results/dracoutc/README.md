@@ -1,0 +1,1 @@
+Same parameters as draco1, but this time with NSB map generated as 23:37 day before (UTC corresponding to local time 01:37).
