@@ -1,0 +1,1 @@
+Same run as dracoutc, with mixed star database as per last commit, with else statement on L169 of nsb/gaia/create.py getSurfaceBrightness being set to 0 rather than the normal 100.
