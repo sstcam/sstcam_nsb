@@ -1,0 +1,1 @@
+Same parameters as dracoutc run, but this time attempting to include high magnitude stars explicitly by merging ducaticat.txt with gaiacat.txt. Doesn't seem to help, despite healpix map changing the intensity plots appear similar.
