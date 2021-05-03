@@ -27,15 +27,15 @@ plt.rcParams['font.size'] = 16
 
 # Set run options here
 
-filename='/store/spencers/NSBmaps/NSB_of_20190508233753_draco23.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20190508233753_draconewcoords.fits'
 
 #location = EarthLocation.from_geodetic(-70.317876,-24.681546,height=2161.25) #Paranal SST-1
 location = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267,height=1750*u.m) #ASTRI
-obstime = Time('2019-05-09T01:37:54.728')
+obstime = Time('2019-05-08T23:37:54.728')
 #raval = 266.1836287564894*u.deg # Source right ascension
 #decval = 54.49192701147445*u.deg # Source declination
-raval=266.1836287564894*u.deg
-decval=54.49192701147445*u.deg
+raval=265.38966378470855*u.deg
+decval=53.93992708657496*u.deg
 # Width and height of pixels on sky
 pixelw=0.19*u.deg
 pixelh=0.19*u.deg
@@ -44,7 +44,7 @@ plotstars=True # Whether or not to plot star position overlays
 nstars=5 # Number of stars to plot if selected
 searchradius=5*u.deg # Radius to search for stars in
 UTCtimecorrection=2
-dt=TimeDelta(3600*UTCtimecorrection,format='sec') #Convert to hours
+dt=TimeDelta(3600*UTCtimecorrection,format='sec') #Convert to hours (not currently used)
 
 #mainsource = SkyCoord.from_name("ASTRI DRACO")
 mainsource = SkyCoord(ICRS(ra=raval,dec=decval)) #ASTRO DRACO field position
@@ -76,11 +76,8 @@ hdu1=fits.open(filename)
 #print(hdu1.info())
 #print(dir(hdu1))
 
-print(hdu1.info())
 fov=hdu1[0].data
-print(hdu1[0].header)
 fov=np.nan_to_num(fov)
-wcs_fits=WCS(hdu1[0].header)
 
 funit=1e-5*u.cd*np.pi**(-1)*u.m**(-2) # Photutils doesn't support nanolamberts as a unit natively, so convert to candela/m^2, which it does support.
 
@@ -91,10 +88,11 @@ print('funit',funit)
 hdu1.close()
 
 fig=plt.figure()
-print(fov.shape)
+
 ax=plt.subplot(projection=wcs_dict,label='overlays')
 vmin, vmax = np.nanmin(fov), np.minimum(4 * np.nanmedian(fov), np.nanmax(fov))
-f1=ax.imshow(fov, cmap=cm.viridis, vmin=vmin, vmax=vmax,origin='lower')
+print('VVals',vmin,vmax)
+f1=ax.imshow(fov,vmin=vmin,vmax=vmax,cmap=cm.viridis,origin='lower')
 
 
 ax.coords.grid(True, color='white', ls='solid')
@@ -107,10 +105,7 @@ overlay.grid(color='white', ls='dotted')
 overlay[0].set_axislabel('Galactic Longitude')
 overlay[1].set_axislabel('Galactic Latitude')
 
-try:
-    fig.colorbar(f1,ax=ax,label='Brightness (nLb)',pad=0.2)
-except Exception:
-    print('Colorbar exception')
+fig.colorbar(f1,ax=ax,label='Brightness (nLb)')
 
 plt.savefig('fovd.png',dpi=300)
 
@@ -119,9 +114,10 @@ print(data,np.shape(data))
 #data=w.pixel_to_world(data)
 
 print(mainsource)
-altaz = AltAz(location=location, obstime=obstime)
 o2=obstime+dt
 print(o2)
+
+altaz = AltAz(location=location, obstime=obstime)
 a2=AltAz(location=location,obstime=o2)
 pointing=mainsource.transform_to(altaz)
 p2=mainsource.transform_to(a2)
@@ -145,9 +141,11 @@ telescope_frame = TelescopeFrame(
     obstime=obstime,
     location=pointing.location,
 )
+telframe2 = TelescopeFrame(telescope_pointing=p2,obstime=o2,location=pointing.location)
 engineering_frame=EngineeringCameraFrame(n_mirrors=2,location=pointing.location,obstime=pointing.obstime,focal_length=focal_length,telescope_pointing=pointing)
+ef2=EngineeringCameraFrame(n_mirrors=2,location=p2.location,obstime=p2.obstime,focal_length=focal_length,telescope_pointing=p2)
 telescope_coords = cam_coords.transform_to(engineering_frame)
-tc2=cam_coords.transform_to(telescope_frame)
+tc2=cam_coords.transform_to(telframe2)
 
 print(telescope_coords.fk5)
 sky_coords=telescope_coords.transform_to(ICRS())
@@ -178,17 +176,17 @@ plt.savefig(str(histname))
 
 
 engineering_cam=cam.transform_to(engineering_frame)
-
+ec2=cam.transform_to(ef2)
 if plotstars==True:
     # Get stars
     vizier = Vizier(catalog='V/50',columns=['_RAJ2000', '_DEJ2000', 'Vmag', 'Name','GLON','GLAT'])
-    t = vizier.query_region(pointing, radius=searchradius, catalog='V/50')[0]
+    t = vizier.query_region(p2, radius=searchradius, catalog='V/50')[0]
     t.sort("Vmag")
     t = t[:nstars]
     stars = SkyCoord(ra=t['_RAJ2000'], dec=t['_DEJ2000'], frame='icrs')
     print(t)
     #stars_cam = stars.transform_to(camera_frame)
-    stars_eng = stars.transform_to(engineering_frame)
+    stars_eng = stars.transform_to(ef2)
     
 
 fig, axs = plt.subplots(1, 2, constrained_layout=True, figsize=(12, 6))
@@ -196,7 +194,7 @@ display_camera = CameraDisplay(
     engineering_cam, 
     ax=axs[0], 
     image=sums.value,
-    norm=mpl.colors.LogNorm(),
+    norm=mpl.colors.Normalize(vmin=vmin,vmax=vmax),
     title="EngineeringCameraFrame",
     cmap='viridis'
 )
@@ -213,15 +211,26 @@ display_engineering = CameraDisplay(
     engineering_cam.transform_to(camera_frame),
     ax=axs[1],
     image=sums.value,
-    norm=mpl.colors.LogNorm(),
+    norm=mpl.colors.Normalize(vmin=vmin,vmax=vmax),
     title="CameraFrame",
     cmap='viridis'
 )
 #display_engineering.set_limits_minmax(vmin,vmax)
 display_engineering.add_colorbar(label='Brightness (nLb/pixel)')
 
+angle=-90.0
+theta=np.pi*angle/180
+rotation=np.array([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]]) #Hacky rotation matrix solution to engineeringcameraframe problem. 
+a2=180.0
+theta2=np.pi*a2/180
+rot2=np.array([[np.cos(theta2),-np.sin(theta2)],[np.sin(theta2),np.cos(theta2)]]) #Hacky rotation matrix solution to engineeringcameraframe problem.                                                      
+engpos=np.asarray([stars_eng.x.value,stars_eng.y.value])
+engpos=np.dot(rot2,engpos)
+a3=90.0
+theta3=np.pi*a3/180
+rot3=np.asarray([[np.cos(theta3),-np.sin(theta3)],[np.sin(theta3),np.cos(theta3)]])
 if plotstars==True:
-    axs[0].plot(stars_eng.x.value, stars_eng.y.value, 'wo', mfc='none', ms=25, mew=2)
+    axs[0].plot(engpos[0],engpos[1], 'wo', mfc='none', ms=25, mew=2)
     #axs[1].plot(stars_cam.x.value, stars_cam.y.value,'wo',mfc='none',ms=25,mew=2)
 plt.savefig(str(camframename),dpi=300)
 
@@ -229,16 +238,13 @@ plt.savefig(str(camframename),dpi=300)
 fig=plt.figure()
 plt.axis('equal')
 
-angle=-90.0
-theta=np.pi*angle/180
-rotation=np.array([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]]) #Hacky rotation matrix solution to engineeringcameraframe problem.
 pos=np.array([tc2.fov_lat.deg,tc2.fov_lon.deg])
 pos=np.dot(rotation,pos)
 
 if plotstars==True:
     stars_tframe=stars.transform_to(tc2)
     starpos=np.array([stars_tframe.fov_lat.deg,stars_tframe.fov_lon.deg])
-    starpos=np.dot(rotation,starpos)
+    starpos=np.dot(rot3,starpos)
     plt.plot(starpos[0],starpos[1], 'wo', mfc='none', ms=25, mew=2)
 
 plt.scatter(pos[0],pos[1],c=sums.value,cmap=cm.viridis,norm=mpl.colors.LogNorm(),marker='s')

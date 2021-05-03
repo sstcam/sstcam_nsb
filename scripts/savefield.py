@@ -34,7 +34,7 @@ plt.rcParams['font.size'] = 16
 
 fovval = 12.0
 npixels = 10000 #Number of pixels on fov map
-nsky = 200 #Number of pixels on all sky map
+nsky = 2000 #Number of pixels on all sky map
 mversion = 'hess_basic'
 
 print('Begin analysis')
@@ -42,8 +42,8 @@ con = config.TheConfiguration()
 
 starttime = Time('2019-05-08T23:37:54.72806')
 loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates 
-obsalt = 73.21*u.degree
-obsaz = 0.5*u.degree
+obsalt = 64.1*u.degree
+obsaz = 41.65*u.degree
 sourcename = 'ASTRI DRACO' # Mypycat Source Name
 
 aa = AltAz(alt=obsalt,az=obsaz,location=loc,obstime=starttime)

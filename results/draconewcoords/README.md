@@ -1,0 +1,1 @@
+New Draco run using only verifiable data. Extracted RA and DEC of centre of Draco field using ESA sky (ASTRI DRACO;17 44 36.834;+53 57 16.60;STAR), used nsb at 23:37 on the 8th (UTC), used astropy at 01.37 on the ninth (local time). Alt:64.1, Az:41.65. raval=265.38966378470855*u.deg, decval=53.93992708657496*u.deg, needed some rotation matricies to try to make things line up.
