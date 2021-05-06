@@ -32,7 +32,7 @@ runname=sys.argv[1] # Specify runname at launch
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
 
-fovval = 12.0
+fovval = 12
 npixels = 10000 #Number of pixels on fov map
 nsky = 2000 #Number of pixels on all sky map
 mversion = 'hess_basic'
@@ -42,9 +42,9 @@ con = config.TheConfiguration()
 
 starttime = Time('2019-05-08T23:37:54.72806')
 loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates 
-obsalt = 64.1*u.degree
-obsaz = 41.65*u.degree
-sourcename = 'ASTRI DRACO' # Mypycat Source Name
+obsalt = 37.05150486240726*u.deg
+obsaz = 0.17759641541298452*u.deg
+sourcename = 'Polaris' # Mypycat Source Name
 
 aa = AltAz(alt=obsalt,az=obsaz,location=loc,obstime=starttime)
 
