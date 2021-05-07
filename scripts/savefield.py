@@ -42,8 +42,9 @@ con = config.TheConfiguration()
 
 starttime = Time('2019-05-08T23:37:54.72806')
 loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates 
-obsalt = 37.05150486240726*u.deg
-obsaz = 0.17759641541298452*u.deg
+obsalt = 37.2078070052851*u.deg
+obsaz = 0.5577894176584676*u.deg
+
 sourcename = 'Polaris' # Mypycat Source Name
 
 aa = AltAz(alt=obsalt,az=obsaz,location=loc,obstime=starttime)

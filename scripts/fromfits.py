@@ -27,15 +27,16 @@ plt.rcParams['font.size'] = 16
 
 # Set run options here
 
-filename='/store/spencers/NSBmaps/NSB_of_20190508233753_polaristry3.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20190508233753_polarisobsalttimecorrection.fits'
 
 #location = EarthLocation.from_geodetic(-70.317876,-24.681546,height=2161.25) #Paranal SST-1
 location = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267,height=1750*u.m) #ASTRI
 obstime = Time('2019-05-08T23:37:54.728')
 #raval = 266.1836287564894*u.deg # Source right ascension
 #decval = 54.49192701147445*u.deg # Source declination
-raval=27.583687671582425*u.deg
-decval=89.48712222230407*u.deg
+raval=37.95454166666666*u.deg
+decval=89.2641111111111*u.deg
+
 
 # Width and height of pixels on sky
 pixelw=0.19*u.deg
@@ -44,7 +45,7 @@ pixelh=0.19*u.deg
 plotstars=True # Whether or not to plot star position overlays
 nstars=1 # Number of stars to plot if selected
 searchradius=5*u.deg # Radius to search for stars in
-UTCtimecorrection=0 #UTC time correction in hours
+UTCtimecorrection=2 #UTC time correction in hours
 dt=TimeDelta(3600*UTCtimecorrection,format='sec') #Convert to hours (not currently used)
 
 #mainsource = SkyCoord.from_name("ASTRI DRACO")
