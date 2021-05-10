@@ -41,6 +41,10 @@ decval=89.2641111111111*u.deg
 # Width and height of pixels on sky
 pixelw=0.19*u.deg
 pixelh=0.19*u.deg
+angle=-90.0 #Angle to rotate NSB fits images to match Engineering Camera Frame, set to -90 for consistant results with SSTCAM sandbox.
+a2=180.0 #Rotation angle for stars in the Engineering Camera Frame plots.
+a3=-90.0 #Rotation angle for stars in the Skyframe (camera on sky) plots.
+
 
 plotstars=True # Whether or not to plot star position overlays
 nstars=1 # Number of stars to plot if selected
@@ -202,15 +206,14 @@ display_engineering = CameraDisplay(
 #display_engineering.set_limits_minmax(vmin,vmax)
 display_engineering.add_colorbar(label='Brightness (nLb/pixel)')
 
-angle=-90.0
 theta=np.pi*angle/180
 rotation=np.array([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]]) #Hacky rotation matrix solution to engineeringcameraframe problem. 
-a2=180.0
+
 theta2=np.pi*a2/180
 rot2=np.array([[np.cos(theta2),-np.sin(theta2)],[np.sin(theta2),np.cos(theta2)]]) #Hacky rotation matrix solution to engineeringcameraframe problem.                                                      
 engpos=np.asarray([stars_eng.x.value,stars_eng.y.value])
 engpos=np.dot(rot2,engpos)
-a3=90.0
+
 theta3=np.pi*a3/180
 rot3=np.asarray([[np.cos(theta3),-np.sin(theta3)],[np.sin(theta3),np.cos(theta3)]])
 if plotstars==True:
