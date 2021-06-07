@@ -1,0 +1,1 @@
+Same setup at the CROTA2 run with 30 degree CROTA2, UTC time correction 2, and varying CTYPEn.
