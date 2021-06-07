@@ -1,0 +1,1 @@
+Same procedure as CROTA2 except with UTC time correction set to 0
