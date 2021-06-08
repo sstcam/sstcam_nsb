@@ -27,31 +27,32 @@ plt.rcParams['font.size'] = 16
 
 # Set run options here
 
-filename='/store/spencers/NSBmaps/NSB_of_20190508233753_polarisobsalttimecorrection.fits'
+filename='/store/spencers/NSBmaps/NSB_of_20220207045400_etacarbrightgauss3.fits'
 
-#location = EarthLocation.from_geodetic(-70.317876,-24.681546,height=2161.25) #Paranal SST-1
-location = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267,height=1750*u.m) #ASTRI
-obstime = Time('2019-05-08T23:37:54.728')
+location = EarthLocation.from_geodetic(-70.317876,-24.681546,height=2176.6) #Paranal SST-1
+#location = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267,height=1750*u.m) #ASTRI
+obstime = Time('2022-02-07T04:54:00')
 #raval = 266.1836287564894*u.deg # Source right ascension
 #decval = 54.49192701147445*u.deg # Source declination
-raval=37.95454166666666*u.deg
-decval=89.2641111111111*u.deg
-
+#raval=266.15347499999996*u.deg
+#decval=53.95461111111111*u.deg #Draco coords for astri obs
+raval=161.26479166666664*u.deg
+decval=-59.68443055555555*u.deg
 
 # Width and height of pixels on sky
 pixelw=0.19*u.deg
 pixelh=0.19*u.deg
 angle=-90.0 #Angle to rotate NSB fits images to match Engineering Camera Frame, set to -90 for consistant results with SSTCAM sandbox.
-a2=180.0 #Rotation angle for stars in the Engineering Camera Frame plots.
+a2=0 #Rotation angle for stars in the Engineering Camera Frame plots.
 a3=-90.0 #Rotation angle for stars in the Skyframe (camera on sky) plots.
-
+crota=int(sys.argv[1]) #Rotation angle fed to WCS dictionary CROTA2 variable.
 
 plotstars=True # Whether or not to plot star position overlays
 nstars=1 # Number of stars to plot if selected
 searchradius=5*u.deg # Radius to search for stars in
-UTCtimecorrection=2 #UTC time correction in hours
+UTCtimecorrection=-3 #UTC time correction in hours
 dt=TimeDelta(3600*UTCtimecorrection,format='sec') #Convert to hours (not currently used)
-
+print('Rotation angle', crota)
 #mainsource = SkyCoord.from_name("ASTRI DRACO")
 mainsource = SkyCoord(ICRS(ra=raval,dec=decval)) #ASTRO DRACO field position
 
@@ -59,11 +60,11 @@ cam = CameraGeometry.from_name('CHEC') # Note this is very old, needs to be upda
 optics = OpticsDescription.from_name('SST-ASTRI') # As is this  
 
 # Output filenames
-tablefilename = 'fluxes.csv'
-histname = 'hist.png'
-skyframename = 'skyframe.png'
-camframename = 'integrated.png'
-fovname='fovd.png'
+tablefilename = 'fluxes_'+'crota_'+str(crota)+'.csv'
+histname = 'hist'+'crota_'+str(crota)+'.png'
+skyframename = 'skyframe'+'crota_'+str(crota)+'.png'
+camframename = 'integrated'+'crota_'+str(crota)+'.png'
+fovname='fovd'+'crota_'+str(crota)+'TAN.png'
 
 ''' 
 Nsb doesn't write fits headers correctly, so you have to define a wcs input dictionary yourself here that depends on the fov size used, the number of pixels, and the RA/DEC of your source. Essentially C  
@@ -72,14 +73,18 @@ ines the co-ordinate system used, there are variations that could be valid but u
 s anyway).
 
 CDELT1 and CDELT2 for 10 degree fov: -0.001, 0.001                 
-CDELT1 and CDELT2 for 12 degree fov: -0.0012, 0.0012 
+CDELT1 and CDELT2 for 12 degree fov: -0.0012, 0.0012,
+Used RA---HPX and DEC--HPX for CTYPE1 
 '''
 
-wcs_input_dict={'CTYPE1': 'RA---HPX','CUNIT1': 'deg','CDELT1': -0.0012,'CRPIX1': 5000,'CRVAL1':raval.value,'NAXIS1': 10000,'CTYPE2': 'DEC--HPX','CUNIT2': 'deg','CDELT2': 0.0012,'CRPIX2': 5000,'CRVAL2':decval.value,'NAXIS2': 10000,'CROTA1':0,'CROTA2':0}
+wcs_input_dict={'CTYPE1':'RA---TAN','CUNIT1': 'deg','CDELT1': 0.001,'CRPIX1': 5000,'CRVAL1':raval.value,'NAXIS1': 10000,'CTYPE2':'DEC--TAN','CUNIT2': 'deg','CDELT2': 0.001,'CRPIX2': 5000,'CRVAL2':decval.value,'NAXIS2': 10000,'CROTA1':0,'CROTA2':crota,'RADESYS': 'ICRS'}
 
 
 hdu1=fits.open(filename)
 #print(hdu1)
+hdu1.verify('silentfix')
+print('Fits header',hdu1[0].header)
+print('Fits WCS',WCS(hdu1[0].header))
 #print(hdu1.info())
 #print(dir(hdu1))
 
@@ -98,7 +103,7 @@ data=u.Quantity(fov,unit=funit)
 print(data,np.shape(data))
 #data=w.pixel_to_world(data)
 
-vmin, vmax = np.nanmin(fov), np.minimum(4 * np.nanmedian(fov), np.nanmax(fov)) #replace fov with data
+vmin, vmax = np.nanmin(fov), np.maximum(4 * np.nanmedian(fov), np.nanmax(fov)) #replace fov with data
 print('VVals',vmin,vmax)
 
 print(mainsource)
@@ -106,9 +111,9 @@ o2=obstime+dt
 print(o2)
 
 altaz = AltAz(location=location, obstime=obstime)
-a2=AltAz(location=location,obstime=o2)
+altaz2=AltAz(location=location,obstime=o2)
 pointing=mainsource.transform_to(altaz)
-p2=mainsource.transform_to(a2)
+p2=mainsource.transform_to(altaz2)
 
 
 pix_x = cam.pix_x
@@ -120,17 +125,17 @@ print(optics)
 #focal_length = optics.equivalent_focal_length
 focal_length = 2.15191*u.m #ASTRI value from sstcam-sandbox
 
-camera_frame = CameraFrame(focal_length=focal_length,telescope_pointing=pointing)
+camera_frame = CameraFrame(focal_length=focal_length,telescope_pointing=p2)
 
 cam_coords = SkyCoord(pix_x,pix_y,frame=camera_frame)
 
 telescope_frame = TelescopeFrame(
-    telescope_pointing=pointing,
-    obstime=obstime,
+    telescope_pointing=p2,
+    obstime=o2,
     location=pointing.location,
 )
-telframe2 = TelescopeFrame(telescope_pointing=p2,obstime=o2,location=pointing.location)
-engineering_frame=EngineeringCameraFrame(n_mirrors=2,location=pointing.location,obstime=pointing.obstime,focal_length=focal_length,telescope_pointing=pointing)
+telframe2 = TelescopeFrame(telescope_pointing=p2,obstime=o2,location=p2.location)
+engineering_frame=EngineeringCameraFrame(n_mirrors=2,location=p2.location,obstime=p2.obstime,focal_length=focal_length,telescope_pointing=p2)
 ef2=EngineeringCameraFrame(n_mirrors=2,location=p2.location,obstime=p2.obstime,focal_length=focal_length,telescope_pointing=p2)
 telescope_coords = cam_coords.transform_to(engineering_frame)
 tc2=cam_coords.transform_to(telframe2)
@@ -204,7 +209,7 @@ display_engineering = CameraDisplay(
     cmap='viridis'
 )
 #display_engineering.set_limits_minmax(vmin,vmax)
-display_engineering.add_colorbar(label='Brightness (nLb/pixel)')
+display_engineering.add_colorbar(label='Brightness (nLb/pixel)',pad=0.2)
 
 theta=np.pi*angle/180
 rotation=np.array([[np.cos(theta),-np.sin(theta)],[np.sin(theta),np.cos(theta)]]) #Hacky rotation matrix solution to engineeringcameraframe problem. 
@@ -217,7 +222,7 @@ engpos=np.dot(rot2,engpos)
 theta3=np.pi*a3/180
 rot3=np.asarray([[np.cos(theta3),-np.sin(theta3)],[np.sin(theta3),np.cos(theta3)]])
 if plotstars==True:
-    axs[0].plot(engpos[0],engpos[1], 'wo', mfc='none', ms=25, mew=2)
+    axs[0].plot(-1*engpos[0],engpos[1], 'wo', mfc='none', ms=25, mew=2)
     #axs[1].plot(stars_cam.x.value, stars_cam.y.value,'wo',mfc='none',ms=25,mew=2)
 plt.savefig(str(camframename),dpi=300)
 
@@ -232,7 +237,7 @@ if plotstars==True:
     stars_tframe=stars.transform_to(tc2)
     starpos=np.array([stars_tframe.fov_lat.deg,stars_tframe.fov_lon.deg])
     starpos=np.dot(rot3,starpos)
-    plt.plot(starpos[0],starpos[1], 'wo', mfc='none', ms=25, mew=2)
+    plt.plot(-1*starpos[0],starpos[1], 'wo', mfc='none', ms=25, mew=2)
 
 plt.scatter(pos[0],pos[1],c=sums.value,cmap=cm.viridis,norm=mpl.colors.LogNorm(),marker='s')
 #norm=mpl.colors.LogNorm(),
@@ -249,7 +254,7 @@ plt.savefig(str(skyframename),dpi=300)
 fig=plt.figure()
 
 ax=plt.subplot(projection=wcs_dict,label='overlays')
-f1=ax.imshow(fov,vmin=vmin,vmax=vmax,cmap=cm.viridis,origin='lower')
+f1=ax.imshow(fov,cmap=cm.viridis,norm=mpl.colors.LogNorm(),origin='lower')
 
 
 ax.coords.grid(True, color='white', ls='solid')
@@ -265,6 +270,6 @@ overlay[1].set_axislabel('Galactic Latitude')
 if plotstars==True:
     ax.scatter(t['_RAJ2000'],t['_DEJ2000'], transform=ax.get_transform('icrs'),s=300,edgecolor='white', facecolor='none')
 
-fig.colorbar(f1,ax=ax,label='Brightness (nLb)')
+fig.colorbar(f1,ax=ax,label='Brightness (nLb)',pad=0.2)
 
 plt.savefig(str(fovname),dpi=300)

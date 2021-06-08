@@ -32,7 +32,7 @@ runname=sys.argv[1] # Specify runname at launch
 plt.rcParams['figure.figsize'] = (12, 8)
 plt.rcParams['font.size'] = 16
 
-fovval = 12
+fovval = 10 #12 used for earlier runs, depends on CTYPEn used during fits extraction.
 npixels = 10000 #Number of pixels on fov map
 nsky = 2000 #Number of pixels on all sky map
 mversion = 'hess_basic'
@@ -40,17 +40,18 @@ mversion = 'hess_basic'
 print('Begin analysis')
 con = config.TheConfiguration()
 
-starttime = Time('2019-05-08T23:37:54.72806')
-loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates 
-obsalt = 37.2078070052851*u.deg
-obsaz = 0.5577894176584676*u.deg
+starttime = Time('2022-02-07T04:54:00') #This absolutely must be in UTC, by virtue of NSB failing if you enter in local time.
+#loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates
+loc = EarthLocation.from_geodetic(lon=-70.317876,lat=-24.681546,height=2176.6*u.m) #SST1 Paranal Position
+obsalt = 33.0833*u.deg
+obsaz = 146.699*u.deg
 
-sourcename = 'Polaris' # Mypycat Source Name
+sourcename = 'Eta Carinae' # Mypycat Source Name
 
 aa = AltAz(alt=obsalt,az=obsaz,location=loc,obstime=starttime)
 
 
-conf = generateconfig(starttime,loc,aa)
+conf = generateconfig(starttime,loc,aa,gauss=3) #Turn gauss up to 1
 writeconfig('/home/spencers/sstcam_nsb/configs/'+runname+'.cfg',conf)
 con.readConfig('/home/spencers/sstcam_nsb/configs/'+runname+'.cfg') #Hacky solution to avoid config files
 
