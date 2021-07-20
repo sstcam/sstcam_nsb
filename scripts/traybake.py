@@ -47,6 +47,45 @@ def cam_squaremaker(data):
     square = np.flip(square, 0)
     return square
 
+def im_maxdiff(image):
+    '''Takes a 2D array and calculates the maximum differences between x and y pixels. Extremely stupid implementation.'''
+
+    xshape=np.shape(image)[0]
+    yshape=np.shape(image)[1]
+    newim=np.zeros((xshape,yshape))
+
+    for i in np.arange(xshape):
+        for j in np.arange(yshape):
+            if image[i,j]>1e-6:
+                nearvals=[]
+                try:
+                    left=abs(image[i,j]-image[i-1,j])
+                    nearvals.append(left)
+                except IndexError:
+                    pass
+                try:
+                    right=abs(image[i,j]-image[i+1,j])
+                    nearvals.append(right)
+                except IndexError:
+                    pass
+                try:
+                    up=abs(image[i,j]-image[i,j+1])
+                    nearvals.append(up)
+                except IndexError:
+                    pass
+                try:
+                    down=abs(image[i,j]-image[i,j-1])
+                    nearvals.append(down)
+                except IndexError:
+                    pass
+                newim[i,j]=max(nearvals)
+            else:
+                continue
+    
+    return newim
+            
+
+
 sums=np.asarray(cam_squaremaker(sums))
 sums=np.rot90(sums,3)
 fig=plt.Figure()
@@ -101,6 +140,19 @@ plt.ylabel('y (Pixels)')
 plt.tight_layout()
 plt.savefig('Hz_pixel.png')
 
+plt.clf()
+plt.cla()
+fig=plt.Figure()
+diffim=im_maxdiff(sHz)
+plt.imshow(diffim)
+plt.title('Engineering Camera Frame\nMaximum Change in NSB Per Pixel\n Mean='+str('%.1f'%np.mean(diffim[np.where(diffim>0)]))+' MHz, $\sigma$='+str('%.1f'%np.std(diffim[np.where(diffim>0)]))+' MHz\n Max='+str('%.1f'%np.nanmax(diffim[np.where(diffim>0)]))+' MHz, Min='+str('%.1f'%np.nanmin(diffim[np.where(diffim>0)]))+' MHz')
+plt.colorbar(label='Max Difference in Mean Relative Brightness (MHz/Pixel)')
+plt.xlabel('x (Pixels)')
+plt.ylabel('y (Pixels)')
+plt.tight_layout()
+plt.savefig('Hz_pixel_diff.png')
+
+
 tmshz=[]
 
 # Crop out the window and calculate the histogram
@@ -129,4 +181,15 @@ plt.xlabel('x (TMs)')
 plt.ylabel('y (TMs)')
 plt.tight_layout()
 plt.savefig('Hz_TM.png')
-print(tms.shape)
+
+plt.clf()
+plt.cla()
+fig=plt.Figure()
+diffim=im_maxdiff(tmshz)
+plt.imshow(diffim)
+plt.title('Engineering Camera Frame\nMaximum Change in NSB Per TM\n Mean='+str('%.1f'%np.mean(diffim[np.where(diffim>0)]))+' MHz, $\sigma$='+str('%.1f'%np.std(diffim[np.where(diffim>0)]))+' MHz\n Max='+str('%.1f'%np.nanmax(diffim[np.where(diffim>0)]))+' MHz, Min='+str('%.1f'%np.nanmin(diffim[np.where(diffim>0)]))+' MHz')
+plt.colorbar(label='Max Difference in Mean Relative Brightness (MHz/TM)')
+plt.xlabel('x (TMs)')
+plt.ylabel('y (TMs)')
+plt.tight_layout()
+plt.savefig('Hz_TM_diff.png')
