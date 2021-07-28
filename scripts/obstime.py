@@ -28,11 +28,11 @@ mversion = 'hess_basic'
 print('Begin analysis')
 con = config.TheConfiguration()
 
-starttime = Time('2022-03-4T04:52:00') #This absolutely must be in UTC, by virtue of NSB failing if you enter in local time.                                                                               
+starttime = Time('2022-01-27T04:46:00') #This absolutely must be in UTC, by virtue of NSB failing if you enter in local time.                                                                               
 #loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates                                                                                                   
 loc = EarthLocation.from_geodetic(lon=-70.317876,lat=-24.681546,height=2176.6*u.m) #SST1 Paranal Position                                                                                                   
-obsalt = 27.20691522353226*u.deg
-obsaz = 1.5989739566337686*u.deg
+obsalt = 17.447627264098198*u.deg
+obsaz = 31.1222350543622*u.deg
 
 sourcename = 'Mrk421' # Mypycat Source Name                                                                                                                                                            
 
