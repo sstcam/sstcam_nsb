@@ -28,13 +28,13 @@ mversion = 'hess_basic'
 print('Begin analysis')
 con = config.TheConfiguration()
 
-starttime = Time('2022-01-27T04:46:00') #This absolutely must be in UTC, by virtue of NSB failing if you enter in local time.                                                                               
+starttime = Time('2022-03-4T04:52:00') #This absolutely must be in UTC, by virtue of NSB failing if you enter in local time.                                                                               
 #loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates                                                                                                   
 loc = EarthLocation.from_geodetic(lon=-70.317876,lat=-24.681546,height=2176.6*u.m) #SST1 Paranal Position                                                                                                   
-obsalt = 69.3981328330998*u.deg
-obsaz = 177.20452488139819*u.deg
+obsalt = 27.20691522353226*u.deg
+obsaz = 1.5989739566337686*u.deg
 
-sourcename = 'Vela Pulsar' # Mypycat Source Name                                                                                                                                                            
+sourcename = 'Mrk421' # Mypycat Source Name                                                                                                                                                            
 
 aa = AltAz(alt=obsalt,az=obsaz,location=loc,obstime=starttime)
 
@@ -54,7 +54,7 @@ nominal = 50
 threshold = 2000                                          
 
 mpc=mypycat()
-source=mpc.get("Vela Pulsar")
+source=mpc.get("Mrk421")
 
 def plotTimespan_Hz(model,PDEaverage,sapixel,mirrorarea,transmission,norm=264.8*10**6):
     # verbose timing output
