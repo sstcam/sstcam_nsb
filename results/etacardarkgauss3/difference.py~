@@ -85,8 +85,7 @@ for r in range(0,diff_hz.shape[0], wsr2):
 tmshz=np.asarray(tmshz)
 print(np.shape(tmshz))
 tmshz=tmshz.reshape((24,24))
-#flathz=tmshz[np.where(tmshz>0)]
-flathz=tmshz
+flathz=tmshz[np.where(tmshz>0)]
 m2hz=np.mean(flathz)
 s2hz=np.std(flathz)
 maxval2hz=np.amax(flathz)
@@ -115,8 +114,7 @@ for r in range(0,diff_hz.shape[0], windowsize_r):
 
 tms=np.asarray(tms)
 tms=tms.reshape((6,6))
-#flat=tms[np.where(tms>0)]
-flat=tms
+flat=tms[np.where(tms>0)]
 m2=np.mean(flat)
 s2=np.std(flat)
 maxval2=np.amax(flat)
@@ -126,7 +124,7 @@ plt.clf()
 plt.cla()
 fig=plt.Figure()
 plt.imshow(tms)
-plt.title('Difference Over 30 Minutes \n Engineering Camera Frame\n Mean='+str('%.1f'%m2)+' MHz, $\sigma$='+str('%.1f'%s2)+' MHz \n Max='+str('%.1f'%maxval2)+' MHz , Min='+str('%.1f'%minval2)+' MHz')
+plt.title('Difference Over 30 Minutes \n Engineering Camera Frame\n Mean='+str('%.1f'%m2)+', $\sigma$='+str('%.1f'%s2)+'\n Max='+str('%.1f'%maxval2)+', Min='+str('%.1f'%minval2))
 plt.colorbar(label='Change in Mean Relative Brightness (Hz/TM)')
 plt.xlabel('x (TMs)')
 plt.ylabel('y (TMs)')
