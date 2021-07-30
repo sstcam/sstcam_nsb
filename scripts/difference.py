@@ -31,8 +31,8 @@ def cam_squaremaker(data):
     return square
 
 
-inputtable1=Table.read('/home/spencers/sstcam_nsb/results/etacardarkminus30mins/fluxes_crota_0.csv')
-inputtable2=Table.read('/home/spencers/sstcam_nsb/results/etacardarkgauss3/fluxes_crota_0.csv')
+inputtable1=Table.read('/home/spencers/sstcam_nsb/results/etacarbrightminus30/fluxes_crota_0.csv')
+inputtable2=Table.read('/home/spencers/sstcam_nsb/results/etacarbrightgauss3/fluxes_crota_0.csv')
 
 posx1=inputtable1['xcenter'].data
 posy1=inputtable1['ycenter'].data
@@ -66,7 +66,7 @@ diff_hz=np.rot90(diff_hz,3)
 fig=plt.Figure()
 plt.imshow(diff_hz,cmap=cm.viridis,norm=mpl.colors.LogNorm())
 plt.title('Difference Over 30 Minutes \n Engineering Camera Frame\n Mean='+str('%.1f'%mean)+' MHz, $\sigma$='+str('%.1f'%sig)+' MHz \n Max='+str('%.1f'%maxval)+' MHz , Min='+str('%.1f'%minval)+' MHz')
-plt.colorbar(label='Change In Relative Brightness (Hz/Pixel)')
+plt.colorbar(label='Change In Brightness (MHz/Pixel)')
 plt.xlabel('x (Pixels)')
 plt.ylabel('y (Pixels)')
 plt.tight_layout()
@@ -97,7 +97,7 @@ plt.cla()
 fig=plt.Figure()
 plt.imshow(tmshz)
 plt.title('Difference Over 30 Minutes \n Engineering Camera Frame\n Mean='+str('%.1f'%m2hz)+' MHz, $\sigma$='+str('%.1f'%s2hz)+' MHz\n Max='+str('%.1f'%maxval2hz)+' MHz, Min='+str('%.1f'%minval2hz)+' MHz')
-plt.colorbar(label='Change in Mean Relative Brightness (MHz/Superpixel)')
+plt.colorbar(label='Change in Mean Brightness (MHz/Superpixel)')
 plt.xlabel('x (Superpixels)')
 plt.ylabel('y (Superpixels)')
 plt.tight_layout()
@@ -127,9 +127,8 @@ plt.cla()
 fig=plt.Figure()
 plt.imshow(tms)
 plt.title('Difference Over 30 Minutes \n Engineering Camera Frame\n Mean='+str('%.1f'%m2)+' MHz, $\sigma$='+str('%.1f'%s2)+' MHz \n Max='+str('%.1f'%maxval2)+' MHz , Min='+str('%.1f'%minval2)+' MHz')
-plt.colorbar(label='Change in Mean Relative Brightness (Hz/TM)')
+plt.colorbar(label='Change in Mean Relative Brightness (MHz/TM)')
 plt.xlabel('x (TMs)')
 plt.ylabel('y (TMs)')
 plt.tight_layout()
 plt.savefig('diff_Hz_TM.png')
-
