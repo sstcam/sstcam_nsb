@@ -31,10 +31,10 @@ con = config.TheConfiguration()
 starttime = Time('2022-01-27T04:46:00') #This absolutely must be in UTC, by virtue of NSB failing if you enter in local time.                                                                               
 #loc = EarthLocation.from_geodetic(lon=14.974609, lat=37.693267, height=1750*u.m) #ASTRI Site Coordinates                                                                                                   
 loc = EarthLocation.from_geodetic(lon=-70.317876,lat=-24.681546,height=2176.6*u.m) #SST1 Paranal Position                                                                                                   
-obsalt = 17.447627264098198*u.deg
-obsaz = 31.1222350543622*u.deg
+obsalt = 69.3981*u.deg
+obsaz = 177.20452*u.deg
 
-sourcename = 'Mrk421' # Mypycat Source Name                                                                                                                                                            
+sourcename = 'Vela Pulsar' # Mypycat Source Name                                                                                                                                                           
 
 aa = AltAz(alt=obsalt,az=obsaz,location=loc,obstime=starttime)
 
@@ -54,7 +54,7 @@ nominal = 50
 threshold = 2000                                          
 
 mpc=mypycat()
-source=mpc.get("Mrk421")
+source=mpc.get(sourcename)
 
 def plotTimespan_Hz(model,PDEaverage,sapixel,mirrorarea,transmission,norm=264.8*10**6):
     # verbose timing output
@@ -165,8 +165,6 @@ def plotTimespan_Hz(model,PDEaverage,sapixel,mirrorarea,transmission,norm=264.8*
 
     # Pad margins so that markers don't get clipped by the axes
     # plt.margins(0.2)
-    fig.tight_layout()
-
     plt.draw()
     return bv
 
@@ -205,10 +203,11 @@ def plotObsTime_nom(model,nom):
     labs = [l.get_label() for l in lns]
     plt.legend(lns, labs, loc='lower right')
     ax = plt.gca()
-    plt.title("Observation Time Gain with Moonlight, Nominal Value: "+str(nom)+' nLb')
+    plt.title(model.source.name+" Time Gain with Moonlight, Nominal Value: "+str(nom)+' nLb')
     ax1.set_xlabel('Max Allowed Brightness as Multiples of Nominal')
     ax1.set_ylabel('Moonlight Observation Time [h/year]')
     ax2.set_ylabel('Fractional Observing Time Gain Relative to Nominal')
+    fig.tight_layout()
     plt.draw()
 
 gaiamap=Gaia(level=11)
