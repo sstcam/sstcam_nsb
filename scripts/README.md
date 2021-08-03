@@ -17,6 +17,8 @@ nsb needs a mypycat.txt saved in the ~/.nsb folder to operate with the mypycat()
 
 Usage Instructions:
 
+Generate a gaia catalogue using the instructions on the nsb pip webpage, note this must be done interactively.
+
 Add RA/DEC of desired source to ~/.nsb/mypycat.txt.
 
 Use skycoord.py to obtain RA/DEC/ALT/AZ in correct format for other scripts. Time must be provided in UTC.

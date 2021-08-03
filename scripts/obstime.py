@@ -172,7 +172,8 @@ def plotTimespan_Hz(model,PDEaverage,sapixel,mirrorarea,transmission,norm=264.8*
 
 def plotObsTime_nom(model,nom):
 
-    plt.figure()
+    fig,ax1=plt.subplots()
+    ax2=ax1.twinx()
     separation = np.nan_to_num(model.separation)
     bright = np.nan_to_num(model.bright)
     bright = bright[separation > 0]
@@ -191,13 +192,23 @@ def plotObsTime_nom(model,nom):
         if model.verbose:
             print("%.2f nLb,\t(%.2f hours),\t(%.2f hours/year)" % (limit, h, 365 * h / (model.time_end - model.time_start)))
 
-    plt.plot(model.brightness_range/float(nom), 365 * np.array(hours) / (model.time_end - model.time_start),
-             label=model.source.name)
-    plt.legend()
+    ln1=ax1.plot((model.brightness_range/float(nom))[1:], (365 * np.array(hours) / (model.time_end - model.time_start))[1:],label='Total Observing Time')
+    nomobs=365*np.array(hours)[1]/(model.time_end-model.time_start)
+    maxobs=365*np.array(hours)[-1]/(model.time_end-model.time_start)
+    print(nomobs,np.array(hours)[0],np.array(hours)[1],np.array(hours)[2])
+    ln2=ax2.plot(model.brightness_range/float(nom), (365 * np.array(hours) / (model.time_end - model.time_start))/nomobs-1,color='orange',label='Fractional Observing Time Gain')
+    d1={'xs':model.brightness_range/float(nom),'ys':model.brightness_range/float(nom)}
+    np.save(runname+'_vals.npy',d1)
+    ax1.set_ylim(0,maxobs+20)
+    ax2.set_ylim(0,1)
+    lns=ln1+ln2
+    labs = [l.get_label() for l in lns]
+    plt.legend(lns, labs, loc='lower right')
     ax = plt.gca()
     plt.title("Observation Time Gain with Moonlight, Nominal Value: "+str(nom)+' nLb')
-    ax.set_xlabel('Max Allowed Brightness as Multiples of Nominal')
-    ax.set_ylabel('Moonlight Observation Time [h/year]')
+    ax1.set_xlabel('Max Allowed Brightness as Multiples of Nominal')
+    ax1.set_ylabel('Moonlight Observation Time [h/year]')
+    ax2.set_ylabel('Fractional Observing Time Gain Relative to Nominal')
     plt.draw()
 
 gaiamap=Gaia(level=11)
