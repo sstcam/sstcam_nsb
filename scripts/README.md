@@ -10,6 +10,7 @@ pip install nsb
 conda install photutils  
 pip uninstall numpy  
 pip install numpy  
+pip install starfield (for availability plots).
 
 Configuration information:
 
