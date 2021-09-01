@@ -1,4 +1,5 @@
 
+
 import numpy as np
 import astropy.units as u
 from astropy.time import Time
@@ -20,7 +21,7 @@ if __name__=='__main__':
     obstime = Time('2022-03-24T07:32:00.000')
     loc = EarthLocation.from_geodetic(lon=-70.317876,lat=-24.681546,height=2176.6*u.m) #SST1 Paranal Position                                                                                                                                
     highmaglimit=4
-    lowmaglimit=5
+    lowmaglimit=8
     covlimit=30
     Lat=loc.lat
 
@@ -36,26 +37,22 @@ if __name__=='__main__':
     stars= Star.from_dataframe(df)
     astrometric = earth.at(t).observe(stars)
     ra, dec, distance = astrometric.radec()
-    print(ra,dec,dir(ra))
-    print(ra._degrees[:])
-    print(dec.degrees)
-    nbins=(np.linspace(0,360,18),np.linspace(-90,90,36))
+    #nbins=(np.linspace(0,360,18),np.linspace(-90,90,36)) #10x10 degree bins
+    nbins=(np.linspace(0,360,25),np.linspace(-90,90,51)) #7x7 degree bins
     hist,yedges,xedges=np.histogram2d(ra._degrees,dec.degrees,nbins)
-    print(hist,dir(hist))
+    mstars=np.mean(hist)
     lenhist=np.shape(hist)[0]*np.shape(hist)[1]
     covlocs=hist[hist>covlimit]
-    print(len(covlocs),lenhist)
     skycov=(np.float(len(covlocs))/lenhist)*100
-    print(yedges,xedges)
     extent = [0,360,-90,90]
     fig=plt.figure(figsize=(12,6))
     ax = plt.gca()
     plt.xlabel('RA (deg)')
     plt.ylabel('DEC (deg)')
-    plt.title('Hipparcos Stars with a Magnitude Brighter or Equal to '+str(lowmaglimit)+' mag,\n But Dimmer Than '+str(highmaglimit)+' mag.\n Sky Coverage Assuming '+str(covlimit)+' Stars Needed: '+str(skycov)+'%')
+    plt.title('Hipparcos Stars with a Magnitude Brighter or Equal to '+str(lowmaglimit)+' mag,\n But Dimmer Than '+str(highmaglimit)+' mag.\n Mean Stars per Bin: '+str(mstars)+'\n Sky Coverage Assuming '+str(covlimit)+' Stars Needed: '+str(skycov)+'%')
     im=ax.imshow(hist,extent=extent)
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(im,label='Number of Stars Present',cax=cax)
     plt.tight_layout()
-    plt.savefig('starhist'+str(highmaglimit)+'_'+str(lowmaglimit)+'_'+str(covlimit)+'.png',dpi=300)
+    plt.savefig('starhist'+str(highmaglimit)+'_'+str(lowmaglimit)+'_'+str(covlimit)+'_7deg.png',dpi=300)
