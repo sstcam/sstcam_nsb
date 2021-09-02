@@ -1,0 +1,1 @@
+Identical run to rigeltry2 except with gaussian blurring set to 0 rather than 3.
