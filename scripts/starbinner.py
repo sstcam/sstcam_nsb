@@ -1,7 +1,6 @@
-
 import numpy as np
 import astropy.units as u
-from astropy.time import Time
+from astropy.time import Time, TimeDelta
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib as mpl
@@ -15,7 +14,8 @@ from skyfield.data import hipparcos
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import pandas as pd
 import healpy as hp
-from astropy.coordinates import SkyCoord
+from astropy.coordinates import EarthLocation,SkyCoord,AltAz,Galactic, ICRS
+from astropy.time import Time
 import healpy as hp
 import numpy as np
 import matplotlib.gridspec as gridspec
@@ -97,28 +97,52 @@ def pixarea2nside(area):
 
     return nside
 
+def calcobserve():
+    '''Random Pointing generator for Paranal'''
+    noyears=20
+    azs=np.random.randint(0,360,size=8760*noyears)*u.deg
+    alts=np.random.randint(20,90,size=8760*noyears)*u.deg
+    loc = EarthLocation.from_geodetic(lon=-70.317876,lat=-24.681546,height=2176.6*u.m) #SST1 Paranal Position
+    dt=TimeDelta(3600,format='sec')
+    obstimes=Time("2021-02-07T04:54:54.0")+np.random.randint(0,8760*noyears,size=8760*noyears)*dt
+    skycoords=AltAz(az=azs,alt=alts,location=loc,obstime=obstimes)
+    skycoords=skycoords.transform_to(ICRS())
+    print(skycoords)
+    return skycoords
+
 if __name__=='__main__':
     NSIDE=8
     print('Appropriate NSIDE to use',pixarea2nside(52.524))
     df=pd.read_csv('/home/spencers/gaiacat8.txt')
     highmaglimit=4
     lowmaglimit=7
-    covlimit=10
-
+    covlimit=30
+    fig=plt.figure(figsize=(10,6))
+    randopoint=calcobserve()
+    avmap=cat2hpx(randopoint.ra,randopoint.dec,NSIDE,radec=True)
+    coverage=np.zeros(np.shape(avmap))
+    covlocs=np.where(avmap>0)
+    coverage[covlocs]=1
+    print(avmap)
+    im=hp.mollview(coverage,title='CTA-South Sky Coverage',hold=True,xsize=1200)
+    plt.savefig('ctasouthskycoverage.png')
+    plt.clf()
+    plt.cla()
     df=df[df['Magnitude'] <= lowmaglimit]
     df=df[df['Magnitude'] > highmaglimit]
     ra=df['RA']
     dec=df['DEC']
     hpx_map=cat2hpx(ra,dec,nside=NSIDE,radec=True)
-    print(len(np.where(hpx_map>covlimit)[0]),hp.nside2npix(NSIDE))
-    skycov=len(np.where(hpx_map>covlimit)[0])/float(hp.nside2npix(NSIDE))*100
+    sumcov=np.sum(coverage)
+    skycov=len(np.where(np.logical_and(hpx_map>covlimit,coverage>0))[0])/float(sumcov)*100
+    hpx_map[np.where(coverage==0)]=0
     mstars=np.mean(hpx_map)
     gs = gridspec.GridSpec(2, 1,height_ratios=[1,200])
     ax1 = plt.subplot(gs[0])
     ax2 = plt.subplot(gs[1])
     #plt.axes(ax1)
     ax1.axis('off')
-    plt.suptitle('Gaia Stars with a Magnitude Brighter or Equal to '+str(lowmaglimit)+' mag,\n but Dimmer Than '+str(highmaglimit)+' mag.\n Bin Size: '+'%.3f'%hp.nside2pixarea(NSIDE)+' Steradians, Mean Stars per Bin: '+str('%.3f'%mstars)+'\n Sky Coverage Assuming '+str(covlimit)+' Stars Needed: '+str('%.3f'%skycov)+'%')
+    plt.suptitle('Gaia Stars with a Magnitude Brighter or Equal to '+str(lowmaglimit)+' mag,\n but Dimmer Than '+str(highmaglimit)+' mag.\n Bin Size: '+'%.3f'%hp.nside2pixarea(NSIDE)+' Steradians, Mean Stars per Bin: '+str('%.3f'%mstars)+'\n Sky Coverage Given '+str(covlimit)+' Stars Needed and CTA-South Observability: '+str('%.3f'%skycov)+'%')
     plt.axes(ax2)
     im=hp.mollview(hpx_map,title='',unit='Number of Stars',hold=True,xsize=1200)
-    plt.savefig('starhist'+str(highmaglimit)+'_'+str(lowmaglimit)+'_'+str(covlimit)+'_7deg.png',dpi=300)
+    plt.savefig('starhist'+str(highmaglimit)+'_'+str(lowmaglimit)+'_'+str(covlimit)+'_CTAS.png',dpi=300)
