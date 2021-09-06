@@ -1,0 +1,5 @@
+Start Time 2021-08-13T04:50:00.000
+Source hms_tuple(h=21.0, m=34.0, s=46.58999999999821) signed_dms_tuple(sign=1.0, d=38.0, m=32.0, s=2.6299999999952206)
+Source RA and DEC 323.69412499999993 38.53406388888889
+Source alt and az 26.688195221212318 359.90169071973366
+Coords hms_tuple(h=3.0, m=35.0, s=1.782907144836372) signed_dms_tuple(sign=-1.0, d=0.0, m=4.0, s=21.095200944603878)
